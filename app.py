@@ -2,21 +2,29 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import urllib.parse
+from io import BytesIO
 
-# =====================================
+# =====================================================
 # PAGE CONFIG
-# =====================================
+# =====================================================
 st.set_page_config(
-    page_title="Courier Management System",
+    page_title="राजहंस पुस्तक पेठ Courier System",
     page_icon="📦",
     layout="wide"
 )
 
-# =====================================
+# =====================================================
+# SHOP DETAILS
+# =====================================================
+SHOP_NAME = "राजहंस पुस्तक पेठ , पुणे ०३८"
+SHOP_MOBILE = "9322630703"
+
+# =====================================================
 # CUSTOM CSS
-# =====================================
+# =====================================================
 st.markdown("""
 <style>
+
 .main {
     padding-top: 10px;
 }
@@ -24,10 +32,11 @@ st.markdown("""
 .stButton > button {
     background-color: #0E7490;
     color: white;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 10px 20px;
     border: none;
     font-size: 16px;
+    width: 100%;
 }
 
 .success-box {
@@ -36,36 +45,63 @@ st.markdown("""
     border-radius: 10px;
     color: #166534;
     font-size: 18px;
+    margin-top: 10px;
 }
+
+.title-box {
+    background-color: #0F172A;
+    padding: 20px;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================
-# TITLE
-# =====================================
-st.title("📦 Courier Management System")
-st.subheader("राजहंस पुस्तक पेठ - Courier Entry")
+# =====================================================
+# HEADER
+# =====================================================
+st.markdown(f"""
+<div class="title-box">
+    <h1>📦 Courier Management System</h1>
+    <h3>{SHOP_NAME}</h3>
+    <p>📞 {SHOP_MOBILE}</p>
+</div>
+""", unsafe_allow_html=True)
 
-# =====================================
-# SESSION STATE
-# =====================================
-if "data" not in st.session_state:
-    st.session_state.data = []
+# =====================================================
+# SESSION STORAGE
+# =====================================================
+if "courier_data" not in st.session_state:
+    st.session_state.courier_data = []
 
-# =====================================
+# =====================================================
 # FORM
-# =====================================
+# =====================================================
 with st.form("courier_form"):
 
     col1, col2 = st.columns(2)
 
     with col1:
-        customer_name = st.text_input("Customer Name")
-        mobile = st.text_input("Mobile Number")
-        tracking_no = st.text_input("Tracking Number")
+
+        customer_name = st.text_input("👤 Customer Name")
+
+        mobile = st.text_input("📱 Customer Mobile Number")
+
+        city = st.text_input("🏙 City")
+
+        tracking_no = st.text_input("🔢 Tracking Number")
+
+    with col2:
+
+        book_name = st.text_input("📚 Book Name")
+
+        amount = st.text_input("💰 Amount")
 
         courier_company = st.selectbox(
-            "Courier Company",
+            "🚚 Courier Company",
             [
                 "Shree Tirupati Courier",
                 "DTDC",
@@ -75,17 +111,13 @@ with st.form("courier_form"):
             ]
         )
 
-    with col2:
-        book_name = st.text_input("Book Name")
-        city = st.text_input("City")
-        amount = st.text_input("Amount")
-        courier_date = st.date_input("Courier Date")
+        courier_date = st.date_input("📅 Courier Date")
 
-    submitted = st.form_submit_button("Save Courier")
+    submitted = st.form_submit_button("✅ Save Courier")
 
-# =====================================
-# SAVE DATA
-# =====================================
+# =====================================================
+# SAVE
+# =====================================================
 if submitted:
 
     # Tracking Link
@@ -100,98 +132,116 @@ if submitted:
 
 आपले पुस्तक कुरियरने पाठवण्यात आले आहे 📦
 
-📘 पुस्तक : {book_name}
-📍 शहर : {city}
-📦 Courier : {courier_company}
+📚 पुस्तक : {book_name}
+🏙 शहर : {city}
+🚚 Courier : {courier_company}
 🔢 Tracking No : {tracking_no}
 
 Tracking Link 👇
 {tracking_link}
 
-- राजहंस पुस्तक पेठ
+धन्यवाद 🙏
+
+{SHOP_NAME}
+📞 {SHOP_MOBILE}
 """
 
-    # WhatsApp URL Encode
+    # Encode WhatsApp Message
     encoded_message = urllib.parse.quote(whatsapp_message)
 
+    # WhatsApp Link
     whatsapp_link = (
         f"https://wa.me/91{mobile}?text={encoded_message}"
     )
 
-    # Save Row
+    # Store Data
     row = {
         "Date": str(courier_date),
-        "Customer": customer_name,
+        "Customer Name": customer_name,
         "Mobile": mobile,
-        "Book": book_name,
         "City": city,
+        "Book Name": book_name,
         "Amount": amount,
-        "Courier": courier_company,
-        "Tracking No": tracking_no,
+        "Courier Company": courier_company,
+        "Tracking Number": tracking_no,
         "Tracking Link": tracking_link
     }
 
-    st.session_state.data.append(row)
+    st.session_state.courier_data.append(row)
 
-    # Success Message
+    # Success
     st.markdown(
-        '<div class="success-box">✅ Courier Saved Successfully!</div>',
+        """
+        <div class="success-box">
+            ✅ Courier Saved Successfully!
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
-    # WhatsApp Message Display
+    # Show Message
     st.subheader("📲 WhatsApp Auto Reply")
 
     st.text_area(
-        "Message",
+        "WhatsApp Message",
         whatsapp_message,
         height=250
     )
 
-    # WhatsApp Send Button
+    # WhatsApp Button
     st.markdown(
         f"""
         <a href="{whatsapp_link}" target="_blank">
             <button style="
                 background-color:#16A34A;
                 color:white;
-                padding:12px 25px;
+                padding:14px 20px;
                 border:none;
                 border-radius:10px;
                 font-size:18px;
+                width:100%;
                 cursor:pointer;
             ">
-                Send WhatsApp Message
+                📲 Send WhatsApp Message
             </button>
         </a>
         """,
         unsafe_allow_html=True
     )
 
-# =====================================
-# DISPLAY DATA
-# =====================================
-if len(st.session_state.data) > 0:
+# =====================================================
+# DISPLAY TABLE
+# =====================================================
+if len(st.session_state.courier_data) > 0:
 
     st.divider()
 
     st.subheader("📋 Courier Records")
 
-    df = pd.DataFrame(st.session_state.data)
+    df = pd.DataFrame(st.session_state.courier_data)
 
     st.dataframe(
         df,
         use_container_width=True
     )
 
-    # CSV Download
-    csv = df.to_csv(
-        index=False
-    ).encode("utf-8-sig")
+    # =================================================
+    # EXCEL DOWNLOAD
+    # =================================================
+    output = BytesIO()
+
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(
+            writer,
+            index=False,
+            sheet_name="Courier Data"
+        )
+
+    excel_data = output.getvalue()
 
     st.download_button(
-        label="⬇ Download CSV",
-        data=csv,
-        file_name=f"courier_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-        mime="text/csv"
+        label="⬇ Download Excel File",
+        data=excel_data,
+        file_name=f"Courier_Data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
