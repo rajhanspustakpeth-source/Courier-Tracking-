@@ -181,8 +181,7 @@ if submitted:
         "Amount": amount,
         "Courier Company": courier_company,
         "Tracking Number": tracking_no,
-        "Tracking Link": tracking_link
-    }
+          }
 
     st.session_state.courier_data.append(row)
 
