@@ -121,10 +121,10 @@ with st.form("courier_form"):
 if submitted:
 
     # Tracking Link
-    tracking_link = (
-        f"http://www.shreetirupaticourier.net/"
-        f"frmDocketTrack.aspx?DocketNo={tracking_no}"
-    )
+ tracking_link = (
+    f"https://trackcourier.in/track-shreetirupaticourier.php?cno={tracking_no}"
+)
+    
 
     # WhatsApp Message
     whatsapp_message = f"""
