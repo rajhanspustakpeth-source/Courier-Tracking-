@@ -86,8 +86,6 @@ if submitted:
         f"🏙 To : {to_city}\n\n"
         f"🚚 Courier : {courier_company}\n"
         f"🔢 Tracking No : {tracking_no}\n\n"
-        f"Tracking Link 👇\n"
-        f"{tracking_link}\n\n"
         f"धन्यवाद 🙏\n\n"
         f"{SHOP_NAME}\n"
         f"📞 {SHOP_MOBILE}"
