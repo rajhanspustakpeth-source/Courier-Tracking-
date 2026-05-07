@@ -143,21 +143,27 @@ if submitted:
     # =================================================
     # WHATSAPP MESSAGE
     # =================================================
+whatsapp_message = f"""
+नमस्कार {customer_name},
 
-    whatsapp_message = (
-        f"नमस्कार {customer_name},\n\n"
-        f"आपले कुरियर पाठवण्यात आले आहे 📦\n\n"
-        f"📍 From : {from_city}\n"
-        f"🏙 To : {to_city}\n\n"
-        f"🚚 Courier : {courier_company}\n"
-        f"🔢 Tracking No : {tracking_no}\n\n"
-        f"Tracking Link 👇\n"
-        f"{tracking_link}\n\n"
-       
-        f"धन्यवाद 🙏\n\n"
-        f"{SHOP_NAME}\n"
-        f"📞 {SHOP_MOBILE}"
-    )
+आपले कुरियर पाठवण्यात आले आहे 📦
+
+📍 From : {from_city}
+🏙 To : {to_city}
+
+🚚 Courier : {courier_company}
+🔢 Tracking No : {tracking_no}
+
+Tracking Link 👇
+{tracking_link}
+
+
+
+धन्यवाद 🙏
+
+{SHOP_NAME}
+📞 {SHOP_MOBILE}
+"""
 
     # =================================================
     # WHATSAPP LINK
