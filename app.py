@@ -100,7 +100,7 @@ with st.form("courier_form"):
 
         customer_name = st.text_input("👤 Customer Name")
 
-        mobile = st.text_input("📱 Customer Mobile Number")
+        customer_mobile = st.text_input("📱 Customer Mobile")
 
         from_city = st.text_input("📍 From City")
 
@@ -137,13 +137,15 @@ if submitted:
     # TRACKING LINK
     # =================================================
 
-   tracking_link = (
-    f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
-)
+    tracking_link = (
+        f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
+    )
+
     # =================================================
     # WHATSAPP MESSAGE
     # =================================================
-whatsapp_message = f"""
+
+    whatsapp_message = f"""
 नमस्कार {customer_name},
 
 आपले कुरियर पाठवण्यात आले आहे 📦
@@ -182,7 +184,7 @@ Tracking Link 👇
     row = {
         "Date": str(courier_date),
         "Customer Name": customer_name,
-        "Customer Mobile": mobile,
+        "Customer Mobile": customer_mobile,
         "From City": from_city,
         "To City": to_city,
         "Amount": amount,
@@ -192,6 +194,10 @@ Tracking Link 👇
     }
 
     st.session_state.courier_data.append(row)
+
+    # =================================================
+    # SUCCESS MESSAGE
+    # =================================================
 
     st.markdown(
         """
@@ -203,7 +209,7 @@ Tracking Link 👇
     )
 
     # =================================================
-    # SHOW MESSAGE
+    # SHOW WHATSAPP MESSAGE
     # =================================================
 
     st.subheader("📲 WhatsApp Message")
