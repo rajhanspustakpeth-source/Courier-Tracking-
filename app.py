@@ -24,23 +24,72 @@ SHOP_NAME = "राजहंस पुस्तक पेठ , पुणे ०�
 SHOP_MOBILE = "9322630703"
 
 # =====================================================
-# YOUR CALLMEBOT API KEY
+# CALLMEBOT API KEY
 # =====================================================
 
-API_KEY = "YOUR_API_KEY"
+# IMPORTANT:
+# Replace YOUR_API_KEY with your real CallMeBot API key
+
+API_KEY = "9322630703"
 
 # =====================================================
-# CREATE FOLDER
+# CREATE MONTHLY REPORT FOLDER
 # =====================================================
 
 os.makedirs("monthly_reports", exist_ok=True)
 
 # =====================================================
+# CUSTOM CSS
+# =====================================================
+
+st.markdown("""
+<style>
+
+.main {
+    padding-top: 10px;
+}
+
+.stButton > button {
+    background-color: #0E7490;
+    color: white;
+    border-radius: 10px;
+    padding: 12px;
+    border: none;
+    width: 100%;
+    font-size: 16px;
+}
+
+.title-box {
+    background: #0F172A;
+    padding: 20px;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.success-box {
+    background: #DCFCE7;
+    padding: 15px;
+    border-radius: 10px;
+    color: #166534;
+    font-size: 18px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =====================================================
 # HEADER
 # =====================================================
 
-st.title("📦 Courier Management System")
-st.subheader(f"{SHOP_NAME} | 📞 {SHOP_MOBILE}")
+st.markdown(f"""
+<div class="title-box">
+    <h1>📦 Courier Management System</h1>
+    <h3>{SHOP_NAME}</h3>
+    <h4>📞 {SHOP_MOBILE}</h4>
+</div>
+""", unsafe_allow_html=True)
 
 # =====================================================
 # SESSION STATE
@@ -59,22 +108,22 @@ with st.form("courier_form"):
 
     with col1:
 
-        customer_name = st.text_input("Customer Name")
+        customer_name = st.text_input("👤 Customer Name")
 
-        mobile = st.text_input("Mobile Number")
+        mobile = st.text_input("📱 Mobile Number")
 
-        from_city = st.text_input("From City")
+        from_city = st.text_input("📍 From City")
 
-        to_city = st.text_input("To City")
+        to_city = st.text_input("🏙 To City")
 
     with col2:
 
-        amount = st.text_input("Amount")
+        amount = st.text_input("💰 Amount")
 
-        tracking_no = st.text_input("Tracking Number")
+        tracking_no = st.text_input("🔢 Tracking Number")
 
         courier_company = st.selectbox(
-            "Courier Company",
+            "🚚 Courier Company",
             [
                 "Shree Tirupati Courier",
                 "DTDC",
@@ -84,9 +133,9 @@ with st.form("courier_form"):
             ]
         )
 
-        courier_date = st.date_input("Courier Date")
+        courier_date = st.date_input("📅 Courier Date")
 
-    submitted = st.form_submit_button("Save Courier")
+    submitted = st.form_submit_button("✅ Save Courier")
 
 # =====================================================
 # SAVE DATA
@@ -94,45 +143,45 @@ with st.form("courier_form"):
 
 if submitted:
 
-    # =================================================
-    # TRACKING LINK
-    # =================================================
-
-    tracking_link = (
-        f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
-    )
+    
 
     # =================================================
-    # MESSAGE
+    # WHATSAPP MESSAGE
     # =================================================
 
-    whatsapp_message = (
-        f"नमस्कार {customer_name},\n\n"
-        f"आपले कुरियर पाठवण्यात आले आहे 📦\n\n"
-        f"📍 From : {from_city}\n"
-        f"🏙 To : {to_city}\n\n"
-        f"🚚 Courier : {courier_company}\n"
-        f"🔢 Tracking No : {tracking_no}\n\n"
+    whatsapp_message = f"""
+नमस्कार {customer_name},
 
-        f"धन्यवाद 🙏\n\n"
-        f"{SHOP_NAME}\n"
-        f"📞 {SHOP_MOBILE}"
-    )
+आपले कुरियर पाठवण्यात आले आहे 📦
+
+📍 From : {from_city}
+🏙 To : {to_city}
+
+🚚 Courier : {courier_company}
+🔢 Tracking No : {tracking_no}
+
+धन्यवाद 🙏
+
+{SHOP_NAME}
+📞 {SHOP_MOBILE}
+"""
 
     # =================================================
-    # SEND WHATSAPP
+    # AUTO WHATSAPP SEND
     # =================================================
 
-    encoded_message = urllib.parse.quote(whatsapp_message)
-
-    whatsapp_url = (
-        f"https://api.callmebot.com/whatsapp.php?"
-        f"phone=91{mobile}"
-        f"&text={encoded_message}"
-        f"&apikey={API_KEY}"
-    )
+    whatsapp_status = "Not Sent"
 
     try:
+
+        encoded_message = urllib.parse.quote(whatsapp_message)
+
+        whatsapp_url = (
+            "https://api.callmebot.com/whatsapp.php?"
+            f"phone=91{mobile}"
+            f"&text={encoded_message}"
+            f"&apikey={API_KEY}"
+        )
 
         response = requests.get(whatsapp_url)
 
@@ -148,11 +197,15 @@ if submitted:
 
             st.error("❌ WhatsApp Sending Failed")
 
+            st.code(response.text)
+
     except Exception as e:
 
         whatsapp_status = "Error"
 
-        st.error(f"❌ Error : {e}")
+        st.error("❌ WhatsApp API Error")
+
+        st.code(str(e))
 
     # =================================================
     # SAVE ROW
@@ -173,38 +226,20 @@ if submitted:
 
     st.session_state.courier_data.append(row)
 
-    # =================================================
-    # DATAFRAME
-    # =================================================
-
-    df = pd.DataFrame(st.session_state.courier_data)
-
-    # =================================================
-    # MONTHLY SAVE
-    # =================================================
-
-    current_month = datetime.now().strftime("%B_%Y")
-
-    monthly_file = (
-        f"monthly_reports/Courier_{current_month}.xlsx"
+    st.markdown(
+        """
+        <div class="success-box">
+            ✅ Courier Saved Successfully!
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    with pd.ExcelWriter(
-        monthly_file,
-        engine="xlsxwriter"
-    ) as writer:
-
-        df.to_excel(
-            writer,
-            index=False,
-            sheet_name="Courier Report"
-        )
-
     # =================================================
-    # SHOW MESSAGE
+    # SHOW WHATSAPP MESSAGE
     # =================================================
 
-    st.subheader("WhatsApp Message")
+    st.subheader("📲 WhatsApp Message")
 
     st.text_area(
         "Message",
@@ -212,15 +247,38 @@ if submitted:
         height=250
     )
 
+    # =================================================
+    # SAVE MONTHLY EXCEL
+    # =================================================
+
+    save_df = pd.DataFrame(st.session_state.courier_data)
+
+    current_month = datetime.now().strftime("%B_%Y")
+
+    monthly_file_name = (
+        f"monthly_reports/Courier_{current_month}.xlsx"
+    )
+
+    with pd.ExcelWriter(
+        monthly_file_name,
+        engine="xlsxwriter"
+    ) as writer:
+
+        save_df.to_excel(
+            writer,
+            index=False,
+            sheet_name="Courier Report"
+        )
+
 # =====================================================
-# SHOW TABLE
+# DISPLAY TABLE
 # =====================================================
 
 if len(st.session_state.courier_data) > 0:
 
     st.divider()
 
-    st.subheader("Courier Records")
+    st.subheader("📋 Courier Records")
 
     df = pd.DataFrame(st.session_state.courier_data)
 
@@ -249,19 +307,19 @@ if len(st.session_state.courier_data) > 0:
     excel_data = output.getvalue()
 
     st.download_button(
-        label="Download Full Excel",
+        label="⬇ Download Full Excel",
         data=excel_data,
         file_name="All_Courier_Data.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
     # =================================================
-    # MONTHLY FILE DOWNLOAD
+    # MONTHLY REPORT DOWNLOAD
     # =================================================
 
     st.divider()
 
-    st.subheader("Monthly Reports")
+    st.subheader("📅 Monthly Reports")
 
     monthly_files = os.listdir("monthly_reports")
 
@@ -270,7 +328,7 @@ if len(st.session_state.courier_data) > 0:
         if file.endswith(".xlsx")
     ]
 
-    if excel_files:
+    if len(excel_files) > 0:
 
         selected_file = st.selectbox(
             "Select Monthly File",
@@ -282,7 +340,7 @@ if len(st.session_state.courier_data) > 0:
         with open(file_path, "rb") as file:
 
             st.download_button(
-                label="Download Monthly Excel",
+                label="⬇ Download Monthly Excel",
                 data=file,
                 file_name=selected_file,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
