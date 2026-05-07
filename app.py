@@ -1,111 +1,60 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import urllib.parse
 from io import BytesIO
+from datetime import datetime
 
-# =====================================================
+# =========================================
 # PAGE CONFIG
-# =====================================================
+# =========================================
 
 st.set_page_config(
-    page_title="राजहंस पुस्तक पेठ Courier System",
+    page_title="Courier System",
     page_icon="📦",
     layout="wide"
 )
 
-# =====================================================
+# =========================================
 # SHOP DETAILS
-# =====================================================
+# =========================================
 
 SHOP_NAME = "राजहंस पुस्तक पेठ , पुणे ०३८"
 SHOP_MOBILE = "9322630703"
 
-# =====================================================
-# CSS
-# =====================================================
-
-st.markdown("""
-<style>
-
-.main {
-    padding-top: 10px;
-}
-
-.stButton > button {
-    background-color: #0E7490;
-    color: white;
-    border-radius: 10px;
-    padding: 12px;
-    border: none;
-    width: 100%;
-}
-
-.title-box {
-    background: #0F172A;
-    padding: 20px;
-    border-radius: 15px;
-    color: white;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.success-box {
-    background: #DCFCE7;
-    padding: 15px;
-    border-radius: 10px;
-    color: #166534;
-    font-size: 18px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# =====================================================
-# HEADER
-# =====================================================
-
-st.markdown(f"""
-<div class="title-box">
-    <h1>📦 Courier Management System</h1>
-    <h3>{SHOP_NAME}</h3>
-    <h4>📞 {SHOP_MOBILE}</h4>
-</div>
-""", unsafe_allow_html=True)
-
-# =====================================================
+# =========================================
 # SESSION STATE
-# =====================================================
+# =========================================
 
 if "courier_data" not in st.session_state:
     st.session_state.courier_data = []
 
-# =====================================================
+# =========================================
+# TITLE
+# =========================================
+
+st.title("📦 Courier Management System")
+st.subheader(f"{SHOP_NAME} | 📞 {SHOP_MOBILE}")
+
+# =========================================
 # FORM
-# =====================================================
+# =========================================
 
 with st.form("courier_form"):
 
     col1, col2 = st.columns(2)
 
     with col1:
-
-        customer_name = st.text_input("👤 Customer Name")
-
-        mobile = st.text_input("📱 Mobile Number")
-
-        from_city = st.text_input("📍 From City")
-
-        to_city = st.text_input("🏙 To City")
+        customer_name = st.text_input("Customer Name")
+        mobile = st.text_input("Mobile Number")
+        from_city = st.text_input("From City")
+        to_city = st.text_input("To City")
 
     with col2:
-
-        amount = st.text_input("💰 Amount")
-
-        tracking_no = st.text_input("🔢 Tracking Number")
+        amount = st.text_input("Amount")
+        tracking_no = st.text_input("Tracking Number")
 
         courier_company = st.selectbox(
-            "🚚 Courier Company",
+            "Courier Company",
             [
                 "Shree Tirupati Courier",
                 "DTDC",
@@ -115,41 +64,34 @@ with st.form("courier_form"):
             ]
         )
 
-        courier_date = st.date_input("📅 Courier Date")
+        courier_date = st.date_input("Courier Date")
 
-    submitted = st.form_submit_button("✅ Save Courier")
+    submitted = st.form_submit_button("Save Courier")
 
-# =====================================================
+# =========================================
 # SAVE DATA
-# =====================================================
+# =========================================
 
 if submitted:
 
-   tracking_link = (
-    f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
-)
+    tracking_link = (
+        "https://trackcourier.in/track-shreetirupati.php?cno="
+        + tracking_no
+    )
 
-    whatsapp_message = f"""
-नमस्कार {customer_name},
-
-आपले कुरियर पाठवण्यात आले आहे 📦
-
-📍 From : {from_city}
-🏙 To : {to_city}
-
-🚚 Courier : {courier_company}
-🔢 Tracking No : {tracking_no}
-
-Tracking Link 👇
-{tracking_link}
-
-💰 Amount : {amount}
-
-धन्यवाद 🙏
-
-{SHOP_NAME}
-📞 {SHOP_MOBILE}
-"""
+    whatsapp_message = (
+        f"नमस्कार {customer_name},\n\n"
+        f"आपले कुरियर पाठवण्यात आले आहे 📦\n\n"
+        f"📍 From : {from_city}\n"
+        f"🏙 To : {to_city}\n\n"
+        f"🚚 Courier : {courier_company}\n"
+        f"🔢 Tracking No : {tracking_no}\n\n"
+        f"Tracking Link 👇\n"
+        f"{tracking_link}\n\n"
+        f"धन्यवाद 🙏\n\n"
+        f"{SHOP_NAME}\n"
+        f"📞 {SHOP_MOBILE}"
+    )
 
     encoded_message = urllib.parse.quote(whatsapp_message)
 
@@ -171,20 +113,13 @@ Tracking Link 👇
 
     st.session_state.courier_data.append(row)
 
-    st.markdown(
-        """
-        <div class="success-box">
-            ✅ Courier Saved Successfully!
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.success("Courier Saved Successfully!")
 
-    # =====================================================
+    # =====================================
     # WHATSAPP MESSAGE
-    # =====================================================
+    # =====================================
 
-    st.subheader("📲 WhatsApp Message")
+    st.subheader("WhatsApp Message")
 
     st.text_area(
         "Message",
@@ -196,9 +131,9 @@ Tracking Link 👇
         f"""
         <a href="{whatsapp_link}" target="_blank">
             <button style="
-                background:#16A34A;
+                background-color:green;
                 color:white;
-                padding:15px;
+                padding:12px;
                 border:none;
                 border-radius:10px;
                 width:100%;
@@ -212,23 +147,23 @@ Tracking Link 👇
         unsafe_allow_html=True
     )
 
-# =====================================================
-# SHOW DATA
-# =====================================================
+# =========================================
+# SHOW TABLE
+# =========================================
 
 if len(st.session_state.courier_data) > 0:
 
     st.divider()
 
-    st.subheader("📋 Courier Records")
+    st.subheader("Courier Records")
 
     df = pd.DataFrame(st.session_state.courier_data)
 
     st.dataframe(df, use_container_width=True)
 
-    # =====================================================
+    # =====================================
     # EXCEL DOWNLOAD
-    # =====================================================
+    # =====================================
 
     output = BytesIO()
 
