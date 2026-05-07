@@ -125,9 +125,9 @@ with st.form("courier_form"):
 
 if submitted:
 
-    tracking_link = (
-        f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
-    )
+   tracking_link = (
+    f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
+)
 
     whatsapp_message = f"""
 नमस्कार {customer_name},
