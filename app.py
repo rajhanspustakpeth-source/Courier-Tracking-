@@ -90,15 +90,15 @@ with st.form("courier_form"):
 
         mobile = st.text_input("📱 Customer Mobile Number")
 
-        city = st.text_input("🏙 City")
+        from_city = st.text_input("📍 From City")
 
-        tracking_no = st.text_input("🔢 Tracking Number")
+        to_city = st.text_input("🏙 To City")
 
     with col2:
 
-        book_name = st.text_input("📚 Book Name")
-
         amount = st.text_input("💰 Amount")
+
+        tracking_no = st.text_input("🔢 Tracking Number")
 
         courier_company = st.selectbox(
             "🚚 Courier Company",
@@ -130,15 +130,18 @@ if submitted:
     whatsapp_message = f"""
 नमस्कार {customer_name},
 
-आपले पुस्तक कुरियरने पाठवण्यात आले आहे 📦
+आपले कुरियर पाठवण्यात आले आहे 📦
 
-📚 पुस्तक : {book_name}
-🏙 शहर : {city}
+📍 From : {from_city}
+🏙 To : {to_city}
+
 🚚 Courier : {courier_company}
 🔢 Tracking No : {tracking_no}
 
 Tracking Link 👇
 {tracking_link}
+
+💰 Amount : {amount}
 
 धन्यवाद 🙏
 
@@ -159,8 +162,8 @@ Tracking Link 👇
         "Date": str(courier_date),
         "Customer Name": customer_name,
         "Mobile": mobile,
-        "City": city,
-        "Book Name": book_name,
+        "From City": from_city,
+        "To City": to_city,
         "Amount": amount,
         "Courier Company": courier_company,
         "Tracking Number": tracking_no,
@@ -179,7 +182,7 @@ Tracking Link 👇
         unsafe_allow_html=True
     )
 
-    # Show Message
+    # WhatsApp Message
     st.subheader("📲 WhatsApp Auto Reply")
 
     st.text_area(
