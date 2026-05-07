@@ -181,3 +181,58 @@ if len(st.session_state.courier_data) > 0:
         file_name=f"Courier_Data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+
+
+
+    # =====================================
+# MONTH FILTER
+# =====================================
+
+st.divider()
+
+st.subheader("📅 Monthly Report Download")
+
+df["Date"] = pd.to_datetime(df["Date"])
+
+df["Month"] = df["Date"].dt.strftime("%Y-%m")
+
+month_list = sorted(df["Month"].unique(), reverse=True)
+
+selected_month = st.selectbox(
+    "Select Month",
+    month_list
+)
+
+monthly_df = df[df["Month"] == selected_month]
+
+st.dataframe(
+    monthly_df,
+    use_container_width=True
+)
+
+# =====================================
+# MONTHLY EXCEL DOWNLOAD
+# =====================================
+
+monthly_output = BytesIO()
+
+with pd.ExcelWriter(
+    monthly_output,
+    engine="xlsxwriter"
+) as writer:
+
+    monthly_df.to_excel(
+        writer,
+        index=False,
+        sheet_name="Monthly Report"
+    )
+
+monthly_excel = monthly_output.getvalue()
+
+st.download_button(
+    label="⬇ Download Monthly Excel",
+    data=monthly_excel,
+    file_name=f"Courier_Report_{selected_month}.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
