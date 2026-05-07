@@ -137,10 +137,9 @@ if submitted:
     # TRACKING LINK
     # =================================================
 
-    tracking_link = (
-        f"http://www.shreetirupaticourier.net/={tracking_no}"
-    )
-
+   tracking_link = (
+    f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
+)
     # =================================================
     # WHATSAPP MESSAGE
     # =================================================
