@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 import urllib.parse
 from io import BytesIO
 from datetime import datetime
@@ -23,7 +24,20 @@ SHOP_NAME = "राजहंस पुस्तक पेठ , पुणे ०�
 SHOP_MOBILE = "9322630703"
 
 # =====================================================
-# CSS
+# WHATSAPP API KEY
+# =====================================================
+
+# Replace with your CallMeBot API Key
+API_KEY = "YOUR_API_KEY"
+
+# =====================================================
+# CREATE FOLDERS
+# =====================================================
+
+os.makedirs("monthly_reports", exist_ok=True)
+
+# =====================================================
+# CUSTOM CSS
 # =====================================================
 
 st.markdown("""
@@ -127,10 +141,17 @@ with st.form("courier_form"):
 
 if submitted:
 
+    # =================================================
+    # TRACKING LINK
+    # =================================================
+
     tracking_link = (
-        "https://trackcourier.in/track-shreetirupati.php?cno="
-        + tracking_no
+        f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
     )
+
+    # =================================================
+    # WHATSAPP MESSAGE
+    # =================================================
 
     whatsapp_message = (
         f"नमस्कार {customer_name},\n\n"
@@ -139,19 +160,41 @@ if submitted:
         f"🏙 To : {to_city}\n\n"
         f"🚚 Courier : {courier_company}\n"
         f"🔢 Tracking No : {tracking_no}\n\n"
-        f"Tracking Link 👇\n"
-        f"{tracking_link}\http://www.shreetirupaticourier.net/"
-  
+       
         f"धन्यवाद 🙏\n\n"
         f"{SHOP_NAME}\n"
         f"📞 {SHOP_MOBILE}"
     )
 
-    encoded_message = urllib.parse.quote(whatsapp_message)
+    # =================================================
+    # AUTO WHATSAPP SEND
+    # =================================================
 
-    whatsapp_link = (
-        f"https://wa.me/91{mobile}?text={encoded_message}"
-    )
+    try:
+
+        whatsapp_url = (
+            f"https://api.callmebot.com/whatsapp.php?"
+            f"phone=91{mobile}"
+            f"&text={urllib.parse.quote(whatsapp_message)}"
+            f"&apikey={API_KEY}"
+        )
+
+        response = requests.get(whatsapp_url)
+
+        if response.status_code == 200:
+            whatsapp_status = "Sent"
+            st.success("✅ WhatsApp Message Sent Successfully!")
+        else:
+            whatsapp_status = "Failed"
+            st.error("❌ WhatsApp Sending Failed")
+
+    except:
+        whatsapp_status = "Error"
+        st.error("❌ WhatsApp API Error")
+
+    # =================================================
+    # SAVE ROW
+    # =================================================
 
     row = {
         "Date": str(courier_date),
@@ -162,37 +205,11 @@ if submitted:
         "Amount": amount,
         "Courier Company": courier_company,
         "Tracking Number": tracking_no,
-        "Tracking Link": tracking_link
+        "Tracking Link": tracking_link,
+        "WhatsApp Status": whatsapp_status
     }
 
     st.session_state.courier_data.append(row)
-
-    # =====================================================
-    # SAVE MONTHLY EXCEL
-    # =====================================================
-
-    save_df = pd.DataFrame(st.session_state.courier_data)
-
-    save_df["Date"] = pd.to_datetime(save_df["Date"])
-
-    current_month = datetime.now().strftime("%B_%Y")
-
-    monthly_df = save_df[
-        save_df["Date"].dt.strftime("%B_%Y") == current_month
-    ]
-
-    monthly_file_name = f"Courier_{current_month}.xlsx"
-
-    with pd.ExcelWriter(
-        monthly_file_name,
-        engine="xlsxwriter"
-    ) as writer:
-
-        monthly_df.to_excel(
-            writer,
-            index=False,
-            sheet_name="Courier Report"
-        )
 
     st.markdown(
         """
@@ -203,11 +220,11 @@ if submitted:
         unsafe_allow_html=True
     )
 
-    # =====================================================
-    # WHATSAPP MESSAGE
-    # =====================================================
+    # =================================================
+    # SHOW MESSAGE
+    # =================================================
 
-    st.subheader("📲 WhatsApp Message")
+    st.subheader("📲 Sent WhatsApp Message")
 
     st.text_area(
         "Message",
@@ -215,28 +232,31 @@ if submitted:
         height=250
     )
 
-    st.markdown(
-        f"""
-        <a href="{whatsapp_link}" target="_blank">
-            <button style="
-                background-color:green;
-                color:white;
-                padding:12px;
-                border:none;
-                border-radius:10px;
-                width:100%;
-                font-size:18px;
-                cursor:pointer;
-            ">
-                📲 Send WhatsApp Message
-            </button>
-        </a>
-        """,
-        unsafe_allow_html=True
+    # =================================================
+    # MONTHLY AUTO SAVE
+    # =================================================
+
+    save_df = pd.DataFrame(st.session_state.courier_data)
+
+    current_month = datetime.now().strftime("%B_%Y")
+
+    monthly_file_name = (
+        f"monthly_reports/Courier_{current_month}.xlsx"
     )
 
+    with pd.ExcelWriter(
+        monthly_file_name,
+        engine="xlsxwriter"
+    ) as writer:
+
+        save_df.to_excel(
+            writer,
+            index=False,
+            sheet_name="Courier Report"
+        )
+
 # =====================================================
-# SHOW TABLE
+# DISPLAY DATA
 # =====================================================
 
 if len(st.session_state.courier_data) > 0:
@@ -252,9 +272,9 @@ if len(st.session_state.courier_data) > 0:
         use_container_width=True
     )
 
-    # =====================================================
+    # =================================================
     # FULL EXCEL DOWNLOAD
-    # =====================================================
+    # =================================================
 
     output = BytesIO()
 
@@ -278,73 +298,35 @@ if len(st.session_state.courier_data) > 0:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    # =====================================================
-    # MONTH FILTER
-    # =====================================================
+    # =================================================
+    # MONTHLY REPORT
+    # =================================================
 
     st.divider()
 
-    st.subheader("📅 Monthly Report")
+    st.subheader("📅 Monthly Reports")
 
-    df["Date"] = pd.to_datetime(df["Date"])
+    monthly_files = os.listdir("monthly_reports")
 
-    df["Month"] = df["Date"].dt.strftime("%Y-%m")
+    excel_files = [
+        file for file in monthly_files
+        if file.endswith(".xlsx")
+    ]
 
-    month_list = sorted(df["Month"].unique(), reverse=True)
+    if excel_files:
 
-    selected_month = st.selectbox(
-        "Select Month",
-        month_list
-    )
-
-    monthly_df = df[df["Month"] == selected_month]
-
-    st.dataframe(
-        monthly_df,
-        use_container_width=True
-    )
-
-    # =====================================================
-    # MONTHLY DOWNLOAD
-    # =====================================================
-
-    monthly_output = BytesIO()
-
-    with pd.ExcelWriter(
-        monthly_output,
-        engine="xlsxwriter"
-    ) as writer:
-
-        monthly_df.to_excel(
-            writer,
-            index=False,
-            sheet_name="Monthly Report"
+        selected_file = st.selectbox(
+            "Select Monthly File",
+            excel_files
         )
 
-    monthly_excel = monthly_output.getvalue()
+        file_path = f"monthly_reports/{selected_file}"
 
-    st.download_button(
-        label="⬇ Download Monthly Excel",
-        data=monthly_excel,
-        file_name=f"Courier_Report_{selected_month}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-    # =====================================================
-    # CURRENT MONTH AUTO FILE DOWNLOAD
-    # =====================================================
-
-    current_month_file = datetime.now().strftime(
-        "Courier_%B_%Y.xlsx"
-    )
-
-    if os.path.exists(current_month_file):
-
-        with open(current_month_file, "rb") as file:
+        with open(file_path, "rb") as file:
 
             st.download_button(
-                label="⬇ Download Current Month File",
+                label="⬇ Download Monthly Excel",
                 data=file,
-                file_name=current_month_file,
+                file_name=selected_file,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
