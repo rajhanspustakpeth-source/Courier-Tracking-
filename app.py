@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import requests
 import urllib.parse
 from io import BytesIO
 from datetime import datetime
@@ -22,15 +21,6 @@ st.set_page_config(
 
 SHOP_NAME = "राजहंस पुस्तक पेठ , पुणे ०३८"
 SHOP_MOBILE = "9322630703"
-
-# =====================================================
-# CALLMEBOT API KEY
-# =====================================================
-
-# IMPORTANT:
-# Replace YOUR_API_KEY with your real CallMeBot API key
-
-API_KEY = "9322630703"
 
 # =====================================================
 # CREATE MONTHLY REPORT FOLDER
@@ -110,7 +100,7 @@ with st.form("courier_form"):
 
         customer_name = st.text_input("👤 Customer Name")
 
-        mobile = st.text_input("📱 Mobile Number")
+        mobile = st.text_input("📱 Customer Mobile Number")
 
         from_city = st.text_input("📍 From City")
 
@@ -143,69 +133,42 @@ with st.form("courier_form"):
 
 if submitted:
 
-    
+    # =================================================
+    # TRACKING LINK
+    # =================================================
+
+    tracking_link = (
+        f"http://www.shreetirupaticourier.net/={tracking_no}"
+    )
 
     # =================================================
     # WHATSAPP MESSAGE
     # =================================================
 
-    whatsapp_message = f"""
-नमस्कार {customer_name},
-
-आपले कुरियर पाठवण्यात आले आहे 📦
-
-📍 From : {from_city}
-🏙 To : {to_city}
-
-🚚 Courier : {courier_company}
-🔢 Tracking No : {tracking_no}
-
-धन्यवाद 🙏
-
-{SHOP_NAME}
-📞 {SHOP_MOBILE}
-"""
+    whatsapp_message = (
+        f"नमस्कार {customer_name},\n\n"
+        f"आपले कुरियर पाठवण्यात आले आहे 📦\n\n"
+        f"📍 From : {from_city}\n"
+        f"🏙 To : {to_city}\n\n"
+        f"🚚 Courier : {courier_company}\n"
+        f"🔢 Tracking No : {tracking_no}\n\n"
+        f"Tracking Link 👇\n"
+        f"{tracking_link}\n\n"
+       
+        f"धन्यवाद 🙏\n\n"
+        f"{SHOP_NAME}\n"
+        f"📞 {SHOP_MOBILE}"
+    )
 
     # =================================================
-    # AUTO WHATSAPP SEND
+    # WHATSAPP LINK
     # =================================================
 
-    whatsapp_status = "Not Sent"
+    encoded_message = urllib.parse.quote(whatsapp_message)
 
-    try:
-
-        encoded_message = urllib.parse.quote(whatsapp_message)
-
-        whatsapp_url = (
-            "https://api.callmebot.com/whatsapp.php?"
-            f"phone=91{mobile}"
-            f"&text={encoded_message}"
-            f"&apikey={API_KEY}"
-        )
-
-        response = requests.get(whatsapp_url)
-
-        if response.status_code == 200:
-
-            whatsapp_status = "Sent"
-
-            st.success("✅ WhatsApp Message Sent Successfully!")
-
-        else:
-
-            whatsapp_status = "Failed"
-
-            st.error("❌ WhatsApp Sending Failed")
-
-            st.code(response.text)
-
-    except Exception as e:
-
-        whatsapp_status = "Error"
-
-        st.error("❌ WhatsApp API Error")
-
-        st.code(str(e))
+    whatsapp_link = (
+        f"https://wa.me/91{SHOP_MOBILE}?text={encoded_message}"
+    )
 
     # =================================================
     # SAVE ROW
@@ -214,14 +177,13 @@ if submitted:
     row = {
         "Date": str(courier_date),
         "Customer Name": customer_name,
-        "Mobile": mobile,
+        "Customer Mobile": mobile,
         "From City": from_city,
         "To City": to_city,
         "Amount": amount,
         "Courier Company": courier_company,
         "Tracking Number": tracking_no,
-        "Tracking Link": tracking_link,
-        "WhatsApp Status": whatsapp_status
+        "Tracking Link": tracking_link
     }
 
     st.session_state.courier_data.append(row)
@@ -236,7 +198,7 @@ if submitted:
     )
 
     # =================================================
-    # SHOW WHATSAPP MESSAGE
+    # SHOW MESSAGE
     # =================================================
 
     st.subheader("📲 WhatsApp Message")
@@ -245,6 +207,30 @@ if submitted:
         "Message",
         whatsapp_message,
         height=250
+    )
+
+    # =================================================
+    # SEND WHATSAPP BUTTON
+    # =================================================
+
+    st.markdown(
+        f"""
+        <a href="{whatsapp_link}" target="_blank">
+            <button style="
+                background-color:#16A34A;
+                color:white;
+                padding:15px;
+                border:none;
+                border-radius:10px;
+                width:100%;
+                font-size:18px;
+                cursor:pointer;
+            ">
+                📲 Send WhatsApp SMS
+            </button>
+        </a>
+        """,
+        unsafe_allow_html=True
     )
 
     # =================================================
