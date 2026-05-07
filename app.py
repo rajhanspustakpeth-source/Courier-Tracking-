@@ -133,15 +133,7 @@ with st.form("courier_form"):
 
 if submitted:
 
-    # =================================================
-    # TRACKING LINK
-    # =================================================
-
-    tracking_link = (
-        f"https://trackcourier.in/track-shreetirupati.php?cno={tracking_no}"
-    )
-
-    # =================================================
+      
     # WHATSAPP MESSAGE
     # =================================================
 
@@ -156,8 +148,7 @@ if submitted:
 🚚 Courier : {courier_company}
 🔢 Tracking No : {tracking_no}
 
-Tracking Link 👇
-{tracking_link}
+
 
 
 
