@@ -141,7 +141,7 @@ if submitted:
 Tracking Link 👇
 {tracking_link}
 
-💰 Amount : {amount}
+
 
 धन्यवाद 🙏
 
